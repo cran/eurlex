@@ -9,26 +9,28 @@ elx_fetch_data(
   type = c("title", "text", "ids"),
   language_1 = "en",
   language_2 = "fr",
-  language_3 = "de"
+  language_3 = "de",
+  include_breaks = TRUE
 )
 }
 \arguments{
-\item{url}{A valid url, preferably to a Cellar work obtained through `elx_run_query`.}
+\item{url}{A valid url based on a resource identifier such as CELEX or Cellar URI.}
 
-\item{type}{The type of data to be retrieved}
+\item{type}{The type of data to be retrieved. When type = "text", the returned list contains named elements reflecting the source of each text.}
 
 \item{language_1}{The priority language in which the data will be attempted to be retrieved, in ISO 639 2-char code}
 
 \item{language_2}{If data not available in `language_1`, try `language_2`}
 
 \item{language_3}{If data not available in `language_2`, try `language_3`}
+
+\item{include_breaks}{If TRUE, text includes tags showing where pages ("---pagebreak---", for pdfs) and documents ("---documentbreak---") were concatenated}
 }
 \description{
 Wraps httr::GET with pre-specified headers to retrieve data.
 }
 \examples{
 \donttest{
-elx_fetch_data(url = ".../resource/cellar/3f7ccca4-478c-4a95-8778-df4243e30d0e", type = "text")
 elx_fetch_data(url = "http://publications.europa.eu/resource/celex/32014R0001", type = "title")
 }
 }
