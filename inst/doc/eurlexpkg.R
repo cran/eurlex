@@ -65,17 +65,13 @@ rec_eurovoc %>%
 
 
 ## ----eurovoctable-------------------------------------------------------------
-
 eurovoc_lookup <- elx_label_eurovoc(uri_eurovoc = rec_eurovoc$eurovoc)
 
 print(eurovoc_lookup)
 
-
 ## ----appendlabs---------------------------------------------------------------
-
 rec_eurovoc %>% 
   left_join(eurovoc_lookup)
-
 
 ## -----------------------------------------------------------------------------
 eurovoc_lookup <- elx_label_eurovoc(uri_eurovoc = rec_eurovoc$eurovoc,
@@ -85,7 +81,6 @@ eurovoc_lookup <- elx_label_eurovoc(uri_eurovoc = rec_eurovoc$eurovoc,
 rec_eurovoc %>% 
   left_join(eurovoc_lookup) %>% 
   select(celex, eurovoc, labels)
-
 
 ## ----getdatapur, message = FALSE, warning=FALSE, error=FALSE------------------
 # the function is not vectorized by default

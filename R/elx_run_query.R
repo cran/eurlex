@@ -5,6 +5,9 @@
 #'
 #' @param query A valid SPARQL query specified by `elx_make_query` or manually
 #' @param endpoint SPARQL endpoint
+#' @return
+#' A data frame containing the results of the SPARQL query.
+#' Column `work` contains the Cellar URI of the resource. Rows with even one missing variable are dropped.
 #' @export
 #' @examples
 #' \donttest{
@@ -17,17 +20,14 @@ elx_run_query <- function(query = "", endpoint = "http://publications.europa.eu/
 
   curlready <- paste(endpoint,"?query=",gsub("\\+","%2B", utils::URLencode(query, reserved = TRUE)), sep = "")
 
-  #sparql_response <- RCurl::getURL(url = curlready)
   sparql_response <- httr::GET(url = curlready,
                                httr::add_headers('Accept' = 'application/sparql-results+xml')
   )
 
   sparql_response_parsed <- sparql_response %>%
-      httr::content(type = "text", encoding = "UTF-8") %>%
-      elx_parse_xml()
+    elx_parse_xml()
 
   return(sparql_response_parsed)
-
 
 }
 

@@ -17,6 +17,8 @@ elx_make_query(
   include_date_transpos = FALSE,
   include_force = FALSE,
   include_eurovoc = FALSE,
+  include_author = FALSE,
+  include_citations = FALSE,
   order = FALSE,
   limit = NULL
 )
@@ -44,9 +46,16 @@ elx_make_query(
 
 \item{include_eurovoc}{If `TRUE`, results include EuroVoc descriptors of subject matter}
 
+\item{include_author}{If `TRUE`, results include document author(s)}
+
+\item{include_citations}{If `TRUE`, results include citations (CELEX-labelled)}
+
 \item{order}{Order results by ids}
 
 \item{limit}{Limit the number of results, for testing purposes mainly}
+}
+\value{
+A character string containing the SPARQL query
 }
 \description{
 Generates pre-defined or manual SPARQL queries to retrieve document ids from Cellar.

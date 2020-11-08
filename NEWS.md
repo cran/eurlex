@@ -1,3 +1,33 @@
+# eurlex 0.3.4
+
+## Major changes
+
+- new feature: request citations referenced in target resource with elx_make_query(include_citations = TRUE); retrieved in CELEX form
+- new feature: request document author(s) with elx_make_query(include_author = TRUE)
+- XML parsing is now more efficient due to utilising (rather than stripping) namespaces (but still room for improvement)
+
+## Minor changes
+
+- fixed bug in elx_label_eurovoc whereby resulting data frames contained list-columns
+
+# eurlex 0.3.3
+
+## Minor changes
+
+- hotfix for critical bug in xml parsing that scrambled column with legal basis where this was requested
+
+# eurlex 0.3.2
+
+## Major changes
+
+- improvement to legal basis harvesting thanks to help from Eur-Lex insiders
+- legal basis results are now slightly more comprehensive and correct
+- legal basis results now include a new column detailing the "suffix" (paragraph, subparagraph, etc.) in string form
+
+## Minor changes
+
+- minor updates to documentation
+
 # eurlex 0.3.1
 
 ## Minor changes
