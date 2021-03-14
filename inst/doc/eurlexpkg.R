@@ -17,26 +17,35 @@ results <- dirs %>% select(-force,-date)
 
 ## -----------------------------------------------------------------------------
 query_dir %>% 
-  glue::as_glue() # for nicer printing
+  cat() # for nicer printing
 
 elx_make_query(resource_type = "caselaw") %>% 
-  glue::as_glue()
+  cat()
 
 elx_make_query(resource_type = "manual", manual_type = "SWD") %>% 
-  glue::as_glue()
+  cat()
 
 
 ## -----------------------------------------------------------------------------
 elx_make_query(resource_type = "directive", include_date = TRUE, include_force = TRUE) %>% 
-  glue::as_glue()
+  cat()
 
 # minimal query: elx_make_query(resource_type = "directive")
 
 elx_make_query(resource_type = "recommendation", include_date = TRUE, include_lbs = TRUE) %>% 
-  glue::as_glue()
+  cat()
 
 # minimal query: elx_make_query(resource_type = "recommendation")
 
+
+## -----------------------------------------------------------------------------
+# request documents from directory 18 ("Common Foreign and Security Policy")
+# and sector 3 ("Legal acts")
+
+elx_make_query(resource_type = "any",
+               directory = "18",
+               sector = 3) %>% 
+  cat()
 
 ## ----runquery, eval=FALSE-----------------------------------------------------
 #  results <- elx_run_query(query = query_dir)
@@ -112,7 +121,9 @@ dirs %>%
 
 ## -----------------------------------------------------------------------------
 dirs %>% 
-  ggplot(aes(x = as.Date(date), y = celex)) +
+  filter(!is.na(force)) %>% 
+  mutate(date = as.Date(date)) %>% 
+  ggplot(aes(x = date, y = celex)) +
   geom_point(aes(color = force), alpha = 0.1) +
   theme(axis.text.y = element_blank(),
         axis.line.y = element_blank(),
