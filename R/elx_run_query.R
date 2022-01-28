@@ -1,9 +1,10 @@
 #' Execute SPARQL queries
 #'
 #' Executes cURL request to a pre-defined endpoint of the EU Publications Office.
-#' Relies on elx_make_query to generate valid SPARQL queries
+#' Relies on elx_make_query to generate valid SPARQL queries.
+#' Results are capped at 1 million rows.
 #'
-#' @param query A valid SPARQL query specified by `elx_make_query` or manually
+#' @param query A valid SPARQL query specified by `elx_make_query()` or manually
 #' @param endpoint SPARQL endpoint
 #' @return
 #' A data frame containing the results of the SPARQL query.
@@ -16,13 +17,15 @@
 
 elx_run_query <- function(query = "", endpoint = "http://publications.europa.eu/webapi/rdf/sparql"){
 
-  stopifnot(is.character(query), nchar(query) > 20, grepl("cdm|eurovoc",query))
+  stopifnot(is.character(query), nchar(query) > 20, grepl("cdm|eurovoc", query))
 
   curlready <- paste(endpoint,"?query=",gsub("\\+","%2B", utils::URLencode(query, reserved = TRUE)), sep = "")
 
-  sparql_response <- graceful_http(curlready)
+  sparql_response <- graceful_http(curlready,
+                                   headers = httr::add_headers('Accept' = 'application/sparql-results+xml'),
+                                   verb = "GET")
 
-  sparql_response_parsed <- sparql_response %>%
+  sparql_response_parsed <- sparql_response %>% 
     elx_parse_xml()
 
   return(sparql_response_parsed)
@@ -36,13 +39,25 @@ elx_run_query <- function(query = "", endpoint = "http://publications.europa.eu/
 #' @noRd
 #'
 
-graceful_http <- function(remote_file) {
+graceful_http <- function(remote_file, headers, verb = c("GET","HEAD")) {
 
   try_GET <- function(x, ...) {
     tryCatch(
       httr::GET(url = x,
                 #httr::timeout(1000000000),
-                httr::add_headers('Accept' = 'application/sparql-results+xml')),
+                #httr::add_headers('Accept' = 'application/sparql-results+xml'),
+                headers),
+      error = function(e) conditionMessage(e),
+      warning = function(w) conditionMessage(w)
+    )
+  }
+  
+  try_HEAD <- function(x, ...) {
+    tryCatch(
+      httr::HEAD(url = x,
+                #httr::timeout(1000000000),
+                #httr::add_headers('Accept' = 'application/sparql-results+xml'),
+                headers),
       error = function(e) conditionMessage(e),
       warning = function(w) conditionMessage(w)
     )
@@ -57,12 +72,27 @@ graceful_http <- function(remote_file) {
     message("No internet connection.")
     return(invisible(NULL))
   }
-
-  # Then try for timeout problems
-  resp <- try_GET(remote_file)
-  if (!is_response(resp)) {
-    message(resp)
-    return(invisible(NULL))
+  
+  if (verb == "GET"){
+    
+    # Then try for timeout problems
+    resp <- try_GET(remote_file)
+    if (!is_response(resp)) {
+      message(resp)
+      return(invisible(NULL))
+    } 
+    
+  }
+  
+  else if (verb == "HEAD"){
+    
+    # Then try for timeout problems
+    resp <- try_HEAD(remote_file)
+    if (!is_response(resp)) {
+      message(resp)
+      return(invisible(NULL))
+    } 
+    
   }
 
   # Then stop if status > 400
@@ -84,15 +114,13 @@ graceful_http <- function(remote_file) {
 
 elx_parse_xml <- function(sparql_response = ""){
 
-  res_binding <- sparql_response %>%
-    xml2::read_xml() %>%
+  res_binding <- sparql_response %>% 
+    xml2::read_xml() %>% 
     xml2::xml_find_all("//d1:binding")
 
-  res_text <- res_binding %>%
-    xml2::xml_text()
+  res_text <- xml2::xml_text(res_binding) 
 
-  res_cols <- res_binding %>%
-    xml2::xml_attr("name")
+  res_cols <- xml2::xml_attr(res_binding, "name")
 
   if (identical(unique(res_cols), c("eurovoc","labels"))){ # for use in elx_label_eurovoc
 

@@ -1,3 +1,16 @@
+# eurlex 0.4.0
+
+## Major changes
+
+- download XML notices associated with Cellar URLs with `elx_download_xml()`
+- retrieve European Case Law Identifier (ECLI) with `elx_make_query(include_ecli = TRUE)`
+
+## Minor changes
+
+- host of smaller code improvements in `elx_fetch_data()`
+- more consistent and strict error generation across all server-interacting functions
+- started adding unit tests
+
 # eurlex 0.3.6
 
 ## Major changes
