@@ -1,3 +1,15 @@
+# eurlex 0.4.1
+
+## Major changes
+
+- `elx_fetch_data(type = "notice", notice = c("tree","branch", "object"))` now mirrors the behaviour of `elx_download_xml()` but instead of saving to path givess access to XML notice in R
+- retrieve data on the Judge-Rapporteur, Advocate-General, court formation and court-curated scholarship using new `include_` options in `elx_make_query()`
+
+## Minor changes
+
+- fixed bug in `elx_download_xml()` parameter checking
+- `elx_download_xml(notice = "object")` now retrieves metadata correctly
+
 # eurlex 0.4.0
 
 ## Major changes

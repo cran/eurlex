@@ -3,7 +3,8 @@
 #' Wraps httr::GET with pre-specified headers and parses retrieved data.
 #'
 #' @param url A valid url as character vector of length one based on a resource identifier such as CELEX or Cellar URI.
-#' @param type The type of data to be retrieved. When type = "text", the returned list contains named elements reflecting the source of each text. When type = "notice", the results return the full XML branch notice associated withe the url.
+#' @param type The type of data to be retrieved. When type = "text", the returned list contains named elements reflecting the source of each text. When type = "notice", the results return an XML notice associated with the url.
+#' @param notice If type = "notice", controls what kind of metadata are returned by the notice.
 #' @param language_1 The priority language in which the data will be attempted to be retrieved, in ISO 639 2-char code
 #' @param language_2 If data not available in `language_1`, try `language_2`
 #' @param language_3 If data not available in `language_2`, try `language_3`
@@ -17,12 +18,15 @@
 #' }
 
 elx_fetch_data <- function(url, type = c("title","text","ids","notice"),
+                           notice = c("tree","branch", "object"),
                            language_1 = "en", language_2 = "fr", language_3 = "de",
                            include_breaks = TRUE){
   
   stopifnot("url must be specified" = !missing(url),
             "type must be specified" = !missing(type),
             "type must be correctly specified" = type %in% c("title","text","ids","notice"))
+  
+  if (type == "notice" & missing(notice)){stop("notice type must be given")}
 
   language <- paste(language_1,", ",language_2,";q=0.8, ",language_3,";q=0.7", sep = "")
 
@@ -148,10 +152,27 @@ elx_fetch_data <- function(url, type = c("title","text","ids","notice"),
   
   if (type == "notice"){
     
-    response <- graceful_http(url,
-                              headers = httr::add_headers('Accept-Language' = language,
-                                                          'Accept' = 'application/xml; notice=branch'),
-                              verb = "GET")
+    accept_header <- paste('application/xml; notice=',
+                           notice,
+                           sep = "")
+    
+    # if object notice, no language header
+    if (notice == "object"){
+      
+      response <- graceful_http(url,
+                            headers = httr::add_headers('Accept' = accept_header),
+                            verb = "GET")
+      
+    }
+    
+    else {
+      
+      response <- graceful_http(url,
+                            headers = httr::add_headers('Accept-Language' = language,
+                                                        'Accept' = accept_header),
+                            verb = "GET") 
+      
+    }
     
     if (httr::status_code(response)==200){
       
