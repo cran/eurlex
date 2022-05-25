@@ -1,7 +1,7 @@
 Package: eurlex
 Type: Package
 Title: Retrieve Data on European Union Law
-Version: 0.4.1
+Version: 0.4.2
 Authors@R: c(person(given = "Michal",
              family = "Ovadek",
              role = c("aut", "cre", "cph"),
@@ -20,8 +20,8 @@ URL: https://michalovadek.github.io/eurlex/
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2022-03-31 20:38:37 UTC; MO
+Packaged: 2022-05-25 10:08:09 UTC; MO
 Author: Michal Ovadek [aut, cre, cph] (<https://orcid.org/0000-0002-2552-2580>)
 Maintainer: Michal Ovadek <michal.ovadek@gmail.com>
 Repository: CRAN
-Date/Publication: 2022-03-31 21:00:02 UTC
+Date/Publication: 2022-05-25 10:20:02 UTC
