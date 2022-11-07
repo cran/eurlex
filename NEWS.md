@@ -1,3 +1,16 @@
+# eurlex 0.4.3
+
+## Major changes
+
+- all date variables retrieved through `elx_make_query(include_... = TRUE)` are now properly named
+- new experimental feature: `elx_make_query(include_citations_detailed = TRUE)` retrieves additional details about the citation where available; the retrieval is currently slow
+
+## Minor changes
+
+- `elx_make_query(include_directory = TRUE)` now retrieves the directory code instead of URI
+- minor clean up of internals
+- vignette lightly touched up
+
 # eurlex 0.4.2
 
 ## Major changes
@@ -6,13 +19,14 @@
 - the returned results from `elx_make_query()` no longer include previous versions of the same record (new versions typically fix incorrect or missing metadata). This reduces the number of duplicates previously appearing in the results
 
 ## Minor changes
+
 - `elx_make_query(include_author = TRUE)` now returns the human-readable label (institutional authors) instead of URI
 
 # eurlex 0.4.1
 
 ## Major changes
 
-- `elx_fetch_data(type = "notice", notice = c("tree","branch", "object"))` now mirrors the behaviour of `elx_download_xml()` but instead of saving to path givess access to XML notice in R
+- `elx_fetch_data(type = "notice", notice = c("tree","branch", "object"))` now mirrors the behaviour of `elx_download_xml()` but instead of saving to path gives access to XML notice in R
 - retrieve data on the Judge-Rapporteur, Advocate-General, court formation and court-curated scholarship using new `include_` options in `elx_make_query()`
 
 ## Minor changes

@@ -20,17 +20,18 @@
 #' @param include_lbs If `TRUE`, results include legal bases of legislation
 #' @param include_force If `TRUE`, results include whether legislation is in force
 #' @param include_eurovoc If `TRUE`, results include EuroVoc descriptors of subject matter
-#' @param include_author If `TRUE`, results include document author(s)
 #' @param include_citations If `TRUE`, results include citations (CELEX-labelled)
-#' @param include_court_procedure If `TRUE`, results include type of court procedure and outcome
+#' @param include_citations_detailed If `TRUE`, results include citations (CELEX-labelled) with additional details
+#' @param include_author If `TRUE`, results include document author(s)
+#' @param include_directory If `TRUE`, results include the Eur-Lex directory code
+#' @param include_sector If `TRUE`, results include the Eur-Lex sector code
 #' @param include_ecli If `TRUE`, results include the ECLI identifier for court documents
-#' @param include_advocate_general If `TRUE`, results include the Advocate General
+#' @param include_court_procedure If `TRUE`, results include type of court procedure and outcome
 #' @param include_judge_rapporteur If `TRUE`, results include the Judge-Rapporteur
+#' @param include_advocate_general If `TRUE`, results include the Advocate General
 #' @param include_court_formation If `TRUE`, results include the court formation
 #' @param include_court_scholarship If `TRUE`, results include court-curated relevant scholarship
 #' @param include_proposal If `TRUE`, results include the CELEX of the proposal of the adopted legal act
-#' @param include_directory If `TRUE`, results include the Eur-Lex directory code
-#' @param include_sector If `TRUE`, results include the Eur-Lex sector code
 #' @param order Order results by ids
 #' @param limit Limit the number of results, for testing purposes mainly
 #' @return
@@ -39,7 +40,7 @@
 #' @examples
 #' elx_make_query(resource_type = "directive", include_date = TRUE, include_force = TRUE)
 #' elx_make_query(resource_type = "regulation", include_corrigenda = TRUE, order = TRUE)
-#' elx_make_query(resource_type = "caselaw")
+#' elx_make_query(resource_type = "any", sector = 2)
 #' elx_make_query(resource_type = "manual", manual_type = "SWD")
 
 elx_make_query <- function(resource_type = c("any","directive","regulation","decision","recommendation","intagr","caselaw","manual","proposal","national_impl"),
@@ -47,11 +48,14 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
                            include_corrigenda = FALSE, include_celex = TRUE, include_lbs = FALSE,
                            include_date = FALSE, include_date_force = FALSE, include_date_endvalid = FALSE,
                            include_date_transpos = FALSE, include_date_lodged = FALSE,
-                           include_force = FALSE, include_eurovoc = FALSE, include_author = FALSE,
-                           include_citations = FALSE, include_court_procedure = FALSE,
+                           include_force = FALSE, include_eurovoc = FALSE,
+                           include_citations = FALSE, include_citations_detailed = FALSE,
+                           include_author = FALSE,
                            include_directory = FALSE, include_sector = FALSE,
-                           include_ecli = FALSE, include_judge_rapporteur = FALSE,
-                           include_advocate_general = FALSE, include_court_formation = FALSE,
+                           include_ecli = FALSE, include_court_procedure = FALSE,
+                           include_judge_rapporteur = FALSE,
+                           include_advocate_general = FALSE,
+                           include_court_formation = FALSE,
                            include_court_scholarship = FALSE,
                            include_proposal = FALSE,
                            order = FALSE, limit = NULL){
@@ -67,7 +71,7 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
     stop("Resource and variable requested are incompatible.", call. = TRUE)
   }
 
-  if (include_date_transpos == TRUE & resource_type!="directive"){
+  if (include_date_transpos == TRUE & !resource_type %in% c("any","directive")){
     stop("Transposition date currently only available for directives.", call. = TRUE)
   }
 
@@ -88,31 +92,31 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
 
   if (include_date == TRUE){
 
-    query <- paste(query, "str(?date)", sep = " ")
+    query <- paste(query, "?date", sep = " ")
 
   }
 
   if (include_date_force == TRUE){
 
-    query <- paste(query, "str(?dateforce)", sep = " ")
+    query <- paste(query, "?dateforce", sep = " ")
 
   }
 
   if (include_date_endvalid == TRUE){
 
-    query <- paste(query, "str(?dateendvalid)", sep = " ")
+    query <- paste(query, "?dateendvalid", sep = " ")
 
   }
 
   if (include_date_transpos == TRUE){
 
-    query <- paste(query, "str(?datetranspos)", sep = " ")
+    query <- paste(query, "?datetranspos", sep = " ")
 
   }
 
   if (include_date_lodged == TRUE){
 
-    query <- paste(query, "str(?datelodged)", sep = " ")
+    query <- paste(query, "?datelodged", sep = " ")
 
   }
 
@@ -159,10 +163,16 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
     query <- paste(query, "?author", sep = " ")
 
   }
-
+  
   if (include_citations == TRUE){
-
+    
     query <- paste(query, "?citationcelex", sep = " ")
+    
+  }
+
+  if (include_citations_detailed == TRUE){
+
+    query <- paste(query, "?citationcelex ?citationdetailcit ?citationdetail", sep = " ")
 
   }
 
@@ -366,7 +376,7 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
     query <- paste(query, "FILTER(?type=<http://publications.europa.eu/resource/authority/resource-type/", manual_type, ">)", sep = "")
   }
 
-  if (include_corrigenda == FALSE & resource_type!="caselaw"){
+  if (include_corrigenda == FALSE){
     query <- paste(query,"\n FILTER not exists{?work cdm:work_has_resource-type <http://publications.europa.eu/resource/authority/resource-type/CORRIGENDUM>}", sep = " ")
   }
 
@@ -406,7 +416,7 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
 
   }
 
-  if (include_lbs == TRUE & resource_type!="caselaw"){
+  if (include_lbs == TRUE){
 
     query <- paste(query, "OPTIONAL{?work cdm:resource_legal_based_on_resource_legal ?lbs.
     ?lbs cdm:resource_legal_id_celex ?lbcelex.
@@ -437,11 +447,26 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
                    ?authorx skos:prefLabel ?author. FILTER(lang(?author)='en')}.")
 
   }
-
+  
   if (include_citations == TRUE){
-
+    
     query <- paste(query, "OPTIONAL{?work cdm:work_cites_work ?citation. 
                    ?citation cdm:resource_legal_id_celex ?citationcelex.}")
+    
+  }
+
+  if (include_citations_detailed == TRUE){
+
+    query <- paste(query, "OPTIONAL{?work cdm:work_cites_work ?citation. 
+                   ?citation cdm:resource_legal_id_celex ?citationcelex.
+                   OPTIONAL{?bn owl:annotatedSource ?work.
+    ?bn owl:annotatedProperty <http://publications.europa.eu/ontology/cdm#work_cites_work>.
+    ?bn owl:annotatedTarget ?citation.
+    ?bn annot:fragment_cited_target ?citationdetailcit.}
+    OPTIONAL{?bn owl:annotatedSource ?work.
+    ?bn owl:annotatedProperty <http://publications.europa.eu/ontology/cdm#work_cites_work>.
+    ?bn owl:annotatedTarget ?citation.
+    ?bn annot:fragment_citing_source ?citationdetail.}}")
 
   }
 
@@ -494,7 +519,8 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
 
   if (include_directory == TRUE){
 
-    query <- paste(query, "OPTIONAL{?work cdm:resource_legal_is_about_concept_directory-code ?directory.}")
+    query <- paste(query, "OPTIONAL{?work cdm:resource_legal_is_about_concept_directory-code ?directoryx.
+                   ?directoryx skos:prefLabel ?directory. FILTER(lang(?directory)='en').}")
 
   }
 
@@ -504,16 +530,18 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
 
   }
   
-  # add filter to hide versioned works (keeps only latest)
+  # add filter to hide versioned works (keeps only latest record if several)
   query <- paste(
     query,
     'FILTER not exists{?work cdm:do_not_index "true"^^<http://www.w3.org/2001/XMLSchema#boolean>}.'
   )
-
+  
+  # order
   if (order == TRUE){
     query <- paste(query, "} order by str(?date)")
-  } else {query <- paste(query, "}")}
+  } else {query <- paste(query, "}")} 
 
+  # limit
   if (!is.null(limit) & is.integer(as.integer(limit))){
     query <- paste(query, "limit", limit, sep = " ")
   }
