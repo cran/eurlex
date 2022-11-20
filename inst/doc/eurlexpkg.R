@@ -92,13 +92,15 @@ rec_eurovoc %>%
 
 ## ----getdatapur, message = FALSE, warning=FALSE, error=FALSE------------------
 # the function is not vectorized by default
-elx_fetch_data(url = results$work[1], type = "title")
+# elx_fetch_data(url = results$work[1], type = "title")
 
 # we can use purrr::map() to play that role
 library(purrr)
 
-dir_titles <- results[1:10,] %>% # take the first 10 directives only to save time
-  mutate(title = map_chr(work, elx_fetch_data, "title")) %>% 
+# wrapping in possibly() catches errors in case there is a server issue
+dir_titles <- results[1:5,] %>% # take the first 5 directives only to save time
+  mutate(title = map_chr(work, possibly(elx_fetch_data, otherwise = NA_character_),
+                         "title")) %>% 
   as_tibble() %>% 
   select(celex, title)
 
@@ -129,9 +131,10 @@ dirs %>%
 
 ## -----------------------------------------------------------------------------
 dirs_1970_title <- dirs %>% 
-  filter(between(as.Date(date), as.Date("1970-01-01"), as.Date("1980-01-01")),
+  filter(between(as.Date(date), as.Date("1970-01-01"), as.Date("1973-01-01")),
          force == "true") %>% 
-  mutate(title = map_chr(work,elx_fetch_data,"title")) %>% 
+  mutate(title = map_chr(work, possibly(elx_fetch_data, otherwise = NA_character_),
+                         "title")) %>%  
   as_tibble()
 
 print(dirs_1970_title)
@@ -147,6 +150,6 @@ dirs_1970_title %>%
   count(celex, word, sort = TRUE) %>% 
   filter(!grepl("\\d", word)) %>% 
   bind_tf_idf(word, celex, n) %>% 
-  with(wordcloud(word, tf_idf, max.words = 40, scale = c(1.8,0.1)))
+  with(wordcloud(word, tf_idf, max.words = 40))
 
 

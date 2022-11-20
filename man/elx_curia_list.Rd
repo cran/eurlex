@@ -26,6 +26,6 @@ CELEX identifiers are extracted from hyperlinks where available.
 }
 \examples{
 \donttest{
-elx_curia_list(data = "cst_all")
+elx_curia_list(data = "cst_all", parse = FALSE)
 }
 }

@@ -14,7 +14,7 @@
 #' @export
 #' @examples
 #' \donttest{
-#' elx_curia_list(data = "cst_all")
+#' elx_curia_list(data = "cst_all", parse = FALSE)
 #' }
 
 elx_curia_list <- function(data = c("all","ecj_old","ecj_new","gc_all","cst_all"),
@@ -101,7 +101,7 @@ elx_curia_list <- function(data = c("all","ecj_old","ecj_new","gc_all","cst_all"
 
 elx_curia_scraper <- function(url, ...){
 
-  page <- xml2::read_html(url)
+  page <- xml2::read_html(url(url, open = "rb"))
 
   tab <- page %>%
     rvest::html_node("table") %>%

@@ -12,7 +12,7 @@
 #' @export
 #' @examples
 #' \donttest{
-#' elx_run_query(elx_make_query("directive", include_force = TRUE))
+#' elx_run_query(elx_make_query("directive", include_force = TRUE, limit = 10))
 #' }
 
 elx_run_query <- function(query = "", endpoint = "http://publications.europa.eu/webapi/rdf/sparql"){
@@ -50,7 +50,6 @@ graceful_http <- function(remote_file, headers, verb = c("GET","HEAD")) {
     tryCatch(
       httr::GET(url = x,
                 #httr::timeout(1000000000),
-                #httr::add_headers('Accept' = 'application/sparql-results+xml'),
                 headers),
       error = function(e) conditionMessage(e),
       warning = function(w) conditionMessage(w)
@@ -61,7 +60,6 @@ graceful_http <- function(remote_file, headers, verb = c("GET","HEAD")) {
     tryCatch(
       httr::HEAD(url = x,
                 #httr::timeout(1000000000),
-                #httr::add_headers('Accept' = 'application/sparql-results+xml'),
                 headers),
       error = function(e) conditionMessage(e),
       warning = function(w) conditionMessage(w)
