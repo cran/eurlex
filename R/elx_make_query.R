@@ -23,7 +23,8 @@
 #' @param include_citations If `TRUE`, results include citations (CELEX-labelled)
 #' @param include_citations_detailed If `TRUE`, results include citations (CELEX-labelled) with additional details
 #' @param include_author If `TRUE`, results include document author(s)
-#' @param include_directory If `TRUE`, results include the Eur-Lex directory code
+#' @param include_directory If `TRUE`, results include the label of the Eur-Lex directory code
+#' @param include_directory_code If `TRUE`, results include the Eur-Lex directory code
 #' @param include_sector If `TRUE`, results include the Eur-Lex sector code
 #' @param include_ecli If `TRUE`, results include the ECLI identifier for court documents
 #' @param include_court_procedure If `TRUE`, results include type of court procedure and outcome
@@ -31,6 +32,8 @@
 #' @param include_advocate_general If `TRUE`, results include the Advocate General
 #' @param include_court_formation If `TRUE`, results include the court formation
 #' @param include_court_scholarship If `TRUE`, results include court-curated relevant scholarship
+#' @param include_court_origin If `TRUE`, results include country of origin of court case
+#' @param include_original_language If `TRUE`, results include authentic language of document (usually case)
 #' @param include_proposal If `TRUE`, results include the CELEX of the proposal of the adopted legal act
 #' @param order Order results by ids
 #' @param limit Limit the number of results, for testing purposes mainly
@@ -51,12 +54,15 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
                            include_force = FALSE, include_eurovoc = FALSE,
                            include_citations = FALSE, include_citations_detailed = FALSE,
                            include_author = FALSE,
-                           include_directory = FALSE, include_sector = FALSE,
+                           include_directory = FALSE, include_directory_code = FALSE,
+                           include_sector = FALSE,
                            include_ecli = FALSE, include_court_procedure = FALSE,
                            include_judge_rapporteur = FALSE,
                            include_advocate_general = FALSE,
                            include_court_formation = FALSE,
                            include_court_scholarship = FALSE,
+                           include_court_origin = FALSE,
+                           include_original_language = FALSE,
                            include_proposal = FALSE,
                            order = FALSE, limit = NULL){
 
@@ -176,7 +182,7 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
 
   }
 
-  if (include_directory == TRUE){
+  if (include_directory == TRUE | include_directory_code == TRUE){
 
     query <- paste(query, "?directory", sep = " ")
 
@@ -209,6 +215,18 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
   if (include_court_scholarship == TRUE){
     
     query <- paste(query, "?scholarship", sep = " ")
+    
+  }
+  
+  if (include_court_origin == TRUE){
+    
+    query <- paste(query, "?courtorigin", sep = " ")
+    
+  }
+  
+  if (include_original_language == TRUE){
+    
+    query <- paste(query, "?origlang", sep = " ")
     
   }
   
@@ -504,6 +522,20 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
     
   }
   
+  if (include_court_origin == TRUE){
+    
+    query <- paste(query, "OPTIONAL{?work cdm:case-law_originates_in_country ?courtoriginx.
+                   ?courtoriginx skos:prefLabel ?courtorigin. FILTER(lang(?courtorigin)='en')}.")
+    
+  }
+  
+  if (include_original_language == TRUE){
+    
+    query <- paste(query, "OPTIONAL{?work cdm:resource_legal_uses_originally_language ?origlangx.
+                   ?origlangx skos:prefLabel ?origlang. FILTER(lang(?origlang)='en')}.")
+    
+  }
+  
   if (include_proposal == TRUE){
     
     query <- paste(query, "OPTIONAL{?work cdm:resource_legal_adopts_resource_legal ?adoptedx.
@@ -522,6 +554,12 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
     query <- paste(query, "OPTIONAL{?work cdm:resource_legal_is_about_concept_directory-code ?directoryx.
                    ?directoryx skos:prefLabel ?directory. FILTER(lang(?directory)='en').}")
 
+  }
+  
+  if (include_directory_code == TRUE){
+    
+    query <- paste(query, "OPTIONAL{?work cdm:resource_legal_is_about_concept_directory-code ?directory.}")
+    
   }
 
   if (include_sector == TRUE){
