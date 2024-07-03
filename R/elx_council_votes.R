@@ -1,15 +1,11 @@
 #' Retrieve Council votes on EU acts
+#' NOTE: The Council votes API was discontinued in May 2024.
 #'
 #' Executes a SPARQL query to the Council's endpoint.
-#'
 #' @importFrom rlang .data
-#' @return
-#' A data frame with Council votes on EU acts.
-#' @export
-#' @examples
-#' \donttest{
-#' votes <- elx_council_votes()
-#' }
+#' 
+#' @noRd
+#' 
 
 elx_council_votes <- function(){
 
@@ -90,29 +86,31 @@ elx_council_votes <- function(){
               ORDER BY DESC(?decisionDate), ?votingInstCode
 "
   
-    # run query
-    votes_resp <- graceful_http(
-      remote_file = "https://data.consilium.europa.eu/sparql",
-      body = list(query = query),
-      httr::content_type("multipart"),
-      headers = httr::add_headers('Accept' = 'text/csv'),
-      encode = "multipart",
-      verb = "POST"
-    )
-    
-    # if var not created, break
-    if (is.null(votes_resp)){
-      
-      return(invisible(NULL))
-      
-    } 
-    
-    # process response
-    votes <- votes_resp %>%
-      httr::content("text") %>%
-      readr::read_csv(col_types = readr::cols(.default = "c"))
-
-    # return
-    return(votes)
+    # # run query
+    # votes_resp <- graceful_http(
+    #   remote_file = "https://data.consilium.europa.eu/sparql",
+    #   body = list(query = query),
+    #   httr::content_type("multipart"),
+    #   headers = httr::add_headers('Accept' = 'text/csv'),
+    #   encode = "multipart",
+    #   verb = "POST"
+    # )
+    # 
+    # # if var not created, break
+    # if (is.null(votes_resp)){
+    #   
+    #   return(invisible(NULL))
+    #   
+    # } 
+    # 
+    # # process response
+    # votes <- votes_resp %>%
+    #   httr::content("text") %>%
+    #   readr::read_csv(col_types = readr::cols(.default = "c"))
+    # 
+    # # return
+    # return(votes)
+  
+  return("The Council votes API was discontinued in May 2024.")
 
 }
