@@ -17,7 +17,7 @@ query_dir <- elx_make_query(resource_type = "directive")
 dirs <- elx_make_query(resource_type = "directive", include_date = TRUE, include_force = TRUE) %>% 
   elx_run_query()
 
-results <- dirs %>% select(-force,-date)
+results <- dplyr::select(dirs, -force,-date)
 
 ## -----------------------------------------------------------------------------
 query_dir %>% 
@@ -31,21 +31,17 @@ elx_make_query(resource_type = "manual", manual_type = "SWD") %>%
 
 
 ## -----------------------------------------------------------------------------
+# minimal query: elx_make_query(resource_type = "directive")
 elx_make_query(resource_type = "directive", include_date = TRUE, include_force = TRUE) %>% 
   cat()
 
-# minimal query: elx_make_query(resource_type = "directive")
-
+# minimal query: elx_make_query(resource_type = "recommendation")
 elx_make_query(resource_type = "recommendation", include_date = TRUE, include_lbs = TRUE) %>% 
   cat()
-
-# minimal query: elx_make_query(resource_type = "recommendation")
-
 
 ## -----------------------------------------------------------------------------
 # request documents from directory 18 ("Common Foreign and Security Policy")
 # and sector 3 ("Legal acts")
-
 elx_make_query(resource_type = "any",
                directory = "18",
                sector = 3) %>% 

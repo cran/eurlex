@@ -48,8 +48,9 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -468,22 +469,22 @@ on the results. The data frame returned by the query might be shrunken
 to the size of the variable with most missing data. It is recommended to
 always compare results from a desired query to a minimal query
 requesting only celex ids.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">elx_make_query</span>(<span class="at">resource_type =</span> <span class="st">&quot;directive&quot;</span>, <span class="at">include_date =</span> <span class="cn">TRUE</span>, <span class="at">include_force =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="fu">cat</span>()</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; PREFIX cdm: &lt;http://publications.europa.eu/ontology/cdm#&gt;</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt;   PREFIX annot: &lt;http://publications.europa.eu/ontology/annotation#&gt;</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt;   PREFIX skos:&lt;http://www.w3.org/2004/02/skos/core#&gt;</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt;   PREFIX dc:&lt;http://purl.org/dc/elements/1.1/&gt;</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt;   PREFIX xsd:&lt;http://www.w3.org/2001/XMLSchema#&gt;</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt;   PREFIX rdf:&lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt;</span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt;   PREFIX owl:&lt;http://www.w3.org/2002/07/owl#&gt;</span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt;   select distinct ?work ?type ?celex ?date ?force where{ ?work cdm:work_has_resource-type ?type. FILTER(?type=&lt;http://publications.europa.eu/resource/authority/resource-type/DIR&gt;||</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt;   ?type=&lt;http://publications.europa.eu/resource/authority/resource-type/DIR_IMPL&gt;||</span></span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt;   ?type=&lt;http://publications.europa.eu/resource/authority/resource-type/DIR_DEL&gt;) </span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt;  FILTER not exists{?work cdm:work_has_resource-type &lt;http://publications.europa.eu/resource/authority/resource-type/CORRIGENDUM&gt;} OPTIONAL{?work cdm:resource_legal_id_celex ?celex.} OPTIONAL{?work cdm:work_date_document ?date.} OPTIONAL{?work cdm:resource_legal_in-force ?force.} FILTER not exists{?work cdm:do_not_index &quot;true&quot;^^&lt;http://www.w3.org/2001/XMLSchema#boolean&gt;}. }</span></span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a></span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co"># minimal query: elx_make_query(resource_type = &quot;directive&quot;)</span></span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a></span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># minimal query: elx_make_query(resource_type = &quot;directive&quot;)</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">elx_make_query</span>(<span class="at">resource_type =</span> <span class="st">&quot;directive&quot;</span>, <span class="at">include_date =</span> <span class="cn">TRUE</span>, <span class="at">include_force =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="fu">cat</span>()</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt; PREFIX cdm: &lt;http://publications.europa.eu/ontology/cdm#&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt;   PREFIX annot: &lt;http://publications.europa.eu/ontology/annotation#&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt;   PREFIX skos:&lt;http://www.w3.org/2004/02/skos/core#&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt;   PREFIX dc:&lt;http://purl.org/dc/elements/1.1/&gt;</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt;   PREFIX xsd:&lt;http://www.w3.org/2001/XMLSchema#&gt;</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt;   PREFIX rdf:&lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt;</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt;   PREFIX owl:&lt;http://www.w3.org/2002/07/owl#&gt;</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt;   select distinct ?work ?type ?celex ?date ?force where{ ?work cdm:work_has_resource-type ?type. FILTER(?type=&lt;http://publications.europa.eu/resource/authority/resource-type/DIR&gt;||</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt;   ?type=&lt;http://publications.europa.eu/resource/authority/resource-type/DIR_IMPL&gt;||</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt;   ?type=&lt;http://publications.europa.eu/resource/authority/resource-type/DIR_DEL&gt;) </span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt;  FILTER not exists{?work cdm:work_has_resource-type &lt;http://publications.europa.eu/resource/authority/resource-type/CORRIGENDUM&gt;} OPTIONAL{?work cdm:resource_legal_id_celex ?celex.} OPTIONAL{?work cdm:work_date_document ?date.} OPTIONAL{?work cdm:resource_legal_in-force ?force.} FILTER not exists{?work cdm:do_not_index &quot;true&quot;^^&lt;http://www.w3.org/2001/XMLSchema#boolean&gt;}. }</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co"># minimal query: elx_make_query(resource_type = &quot;recommendation&quot;)</span></span>
 <span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="fu">elx_make_query</span>(<span class="at">resource_type =</span> <span class="st">&quot;recommendation&quot;</span>, <span class="at">include_date =</span> <span class="cn">TRUE</span>, <span class="at">include_lbs =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>  <span class="fu">cat</span>()</span>
 <span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; PREFIX cdm: &lt;http://publications.europa.eu/ontology/cdm#&gt;</span></span>
@@ -506,9 +507,7 @@ requesting only celex ids.</p>
 <span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a><span class="co">#&gt;     OPTIONAL{?bn owl:annotatedSource ?work.</span></span>
 <span id="cb4-37"><a href="#cb4-37" tabindex="-1"></a><span class="co">#&gt;     ?bn owl:annotatedProperty &lt;http://publications.europa.eu/ontology/cdm#resource_legal_based_on_resource_legal&gt;.</span></span>
 <span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a><span class="co">#&gt;     ?bn owl:annotatedTarget ?lbs.</span></span>
-<span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a><span class="co">#&gt;     ?bn annot:comment_on_legal_basis ?lbsuffix}} FILTER not exists{?work cdm:do_not_index &quot;true&quot;^^&lt;http://www.w3.org/2001/XMLSchema#boolean&gt;}. }</span></span>
-<span id="cb4-40"><a href="#cb4-40" tabindex="-1"></a></span>
-<span id="cb4-41"><a href="#cb4-41" tabindex="-1"></a><span class="co"># minimal query: elx_make_query(resource_type = &quot;recommendation&quot;)</span></span></code></pre></div>
+<span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a><span class="co">#&gt;     ?bn annot:comment_on_legal_basis ?lbsuffix}} FILTER not exists{?work cdm:do_not_index &quot;true&quot;^^&lt;http://www.w3.org/2001/XMLSchema#boolean&gt;}. }</span></span></code></pre></div>
 <p>You can also decide to not specify any resource types, in which case
 all types of documents will be returned. As there are over a million
 documents with a CELEX identifier, this is likely not efficient for a
@@ -518,34 +517,33 @@ or <a href="https://eur-lex.europa.eu/browse/directories/legislation.html">direc
 code</a>.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># request documents from directory 18 (&quot;Common Foreign and Security Policy&quot;)</span></span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co"># and sector 3 (&quot;Legal acts&quot;)</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">elx_make_query</span>(<span class="at">resource_type =</span> <span class="st">&quot;any&quot;</span>,</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>               <span class="at">directory =</span> <span class="st">&quot;18&quot;</span>,</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>               <span class="at">sector =</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  <span class="fu">cat</span>()</span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; PREFIX cdm: &lt;http://publications.europa.eu/ontology/cdm#&gt;</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt;   PREFIX annot: &lt;http://publications.europa.eu/ontology/annotation#&gt;</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt;   PREFIX skos:&lt;http://www.w3.org/2004/02/skos/core#&gt;</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt;   PREFIX dc:&lt;http://purl.org/dc/elements/1.1/&gt;</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt;   PREFIX xsd:&lt;http://www.w3.org/2001/XMLSchema#&gt;</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt;   PREFIX rdf:&lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt;</span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt;   PREFIX owl:&lt;http://www.w3.org/2002/07/owl#&gt;</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt;   select distinct ?work ?type ?celex where{</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt;     VALUES (?value)</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt;     { (&lt;http://publications.europa.eu/resource/authority/fd_555/18&gt;)</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt;       (&lt;http://publications.europa.eu/resource/authority/dir-eu-legal-act/18&gt;)</span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt;     }</span></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt;     {?work cdm:resource_legal_is_about_concept_directory-code ?value.</span></span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt;     }</span></span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt;     UNION</span></span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt;     {?work cdm:resource_legal_is_about_concept_directory-code ?directory.</span></span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt;       ?value skos:narrower+ ?directory.</span></span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt;     }</span></span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt;     </span></span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt;     ?work cdm:resource_legal_id_sector ?sector.</span></span>
-<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt;     FILTER(str(?sector)=&#39;3&#39;)</span></span>
-<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt;      </span></span>
-<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt;  FILTER not exists{?work cdm:work_has_resource-type &lt;http://publications.europa.eu/resource/authority/resource-type/CORRIGENDUM&gt;} OPTIONAL{?work cdm:resource_legal_id_celex ?celex.} FILTER not exists{?work cdm:do_not_index &quot;true&quot;^^&lt;http://www.w3.org/2001/XMLSchema#boolean&gt;}. }</span></span></code></pre></div>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">elx_make_query</span>(<span class="at">resource_type =</span> <span class="st">&quot;any&quot;</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>               <span class="at">directory =</span> <span class="st">&quot;18&quot;</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>               <span class="at">sector =</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="fu">cat</span>()</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; PREFIX cdm: &lt;http://publications.europa.eu/ontology/cdm#&gt;</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt;   PREFIX annot: &lt;http://publications.europa.eu/ontology/annotation#&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt;   PREFIX skos:&lt;http://www.w3.org/2004/02/skos/core#&gt;</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt;   PREFIX dc:&lt;http://purl.org/dc/elements/1.1/&gt;</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt;   PREFIX xsd:&lt;http://www.w3.org/2001/XMLSchema#&gt;</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt;   PREFIX rdf:&lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt;</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt;   PREFIX owl:&lt;http://www.w3.org/2002/07/owl#&gt;</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt;   select distinct ?work ?type ?celex where{</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt;     VALUES (?value)</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt;     { (&lt;http://publications.europa.eu/resource/authority/fd_555/18&gt;)</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt;       (&lt;http://publications.europa.eu/resource/authority/dir-eu-legal-act/18&gt;)</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt;     }</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt;     {?work cdm:resource_legal_is_about_concept_directory-code ?value.</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt;     }</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt;     UNION</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt;     {?work cdm:resource_legal_is_about_concept_directory-code ?directory.</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt;       ?value skos:narrower+ ?directory.</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt;     }</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt;     </span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt;     ?work cdm:resource_legal_id_sector ?sector.</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt;     FILTER(str(?sector)=&#39;3&#39;)</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt;      </span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt;  FILTER not exists{?work cdm:work_has_resource-type &lt;http://publications.europa.eu/resource/authority/resource-type/CORRIGENDUM&gt;} OPTIONAL{?work cdm:resource_legal_id_celex ?celex.} FILTER not exists{?work cdm:do_not_index &quot;true&quot;^^&lt;http://www.w3.org/2001/XMLSchema#boolean&gt;}. }</span></span></code></pre></div>
 </div>
 </div>
 <div class="footnotes footnotes-end-of-document">
