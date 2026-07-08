@@ -46,7 +46,7 @@ query_dir <- elx_make_query(resource_type = "directive")
 ```
 
 
-```{r precompute, include=FALSE}
+```{r precompute, include=FALSE, eval=FALSE}
 dirs <- elx_make_query(resource_type = "directive", include_date = TRUE, include_force = TRUE) %>% 
   elx_run_query()
 

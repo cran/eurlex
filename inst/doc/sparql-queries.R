@@ -13,11 +13,11 @@ library(dplyr)
 
 query_dir <- elx_make_query(resource_type = "directive")
 
-## ----precompute, include=FALSE------------------------------------------------
-dirs <- elx_make_query(resource_type = "directive", include_date = TRUE, include_force = TRUE) %>% 
-  elx_run_query()
-
-results <- dplyr::select(dirs, -force,-date)
+## ----precompute, include=FALSE, eval=FALSE------------------------------------
+# dirs <- elx_make_query(resource_type = "directive", include_date = TRUE, include_force = TRUE) %>%
+#   elx_run_query()
+# 
+# results <- dplyr::select(dirs, -force,-date)
 
 ## -----------------------------------------------------------------------------
 query_dir %>% 
