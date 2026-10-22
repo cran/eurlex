@@ -14,6 +14,8 @@ elx_make_query(
   include_celex = TRUE,
   include_lbs = FALSE,
   include_date = FALSE,
+  date_from = NULL,
+  date_to = NULL,
   include_date_force = FALSE,
   include_date_endvalid = FALSE,
   include_date_transpos = FALSE,
@@ -23,6 +25,7 @@ elx_make_query(
   include_citations = FALSE,
   include_citations_detailed = FALSE,
   include_author = FALSE,
+  include_title = FALSE,
   include_directory = FALSE,
   include_directory_code = FALSE,
   include_sector = FALSE,
@@ -56,6 +59,10 @@ elx_make_query(
 
 \item{include_date}{If \code{TRUE}, results include document date}
 
+\item{date_from}{Restrict results to documents dated on or after this date, in \code{YYYY-MM-DD} format}
+
+\item{date_to}{Restrict results to documents dated on or before this date, in \code{YYYY-MM-DD} format}
+
 \item{include_date_force}{If \code{TRUE}, results include date of entry into force}
 
 \item{include_date_endvalid}{If \code{TRUE}, results include date of end of validity}
@@ -73,6 +80,8 @@ elx_make_query(
 \item{include_citations_detailed}{If \code{TRUE}, results include citations (CELEX-labelled) with additional details}
 
 \item{include_author}{If \code{TRUE}, results include document author(s)}
+
+\item{include_title}{If \code{TRUE}, results include document title in English}
 
 \item{include_directory}{If \code{TRUE}, results include the label of the Eur-Lex directory code}
 
@@ -110,8 +119,23 @@ Generates pre-defined or manual SPARQL queries to retrieve document ids from Cel
 List of available resource types: http://publications.europa.eu/resource/authority/resource-type .
 Note that not all resource types are compatible with default parameter values.
 }
+\details{
+When \code{date_from} or \code{date_to} are specified, the underlying SPARQL query
+requires \code{?date} to be a well-formed \code{xsd:date}. Any document whose date
+does not resolve to a valid \code{xsd:date} would be silently excluded from
+the filtered results, without a warning or error.
+
+When \code{include_author} is \code{TRUE}, the query uses \code{GROUP_CONCAT} to combine
+multiple authors for the same document into a single pipe-separated
+(\code{|}) string in the \code{author} column, rather than returning one row per
+author. This avoids duplicate rows for documents with multiple authors,
+but means the query switches from \verb{SELECT DISTINCT} to \verb{SELECT ... GROUP BY}
+internally when \code{include_author} is used.
+}
 \examples{
 elx_make_query(resource_type = "directive", include_date = TRUE, include_force = TRUE)
+elx_make_query(resource_type = "directive", include_title = TRUE)
+elx_make_query(resource_type = "directive", date_from = "2015-01-01", date_to = "2015-12-31")
 elx_make_query(resource_type = "regulation", include_corrigenda = TRUE, order = TRUE)
 elx_make_query(resource_type = "any", sector = 2)
 elx_make_query(resource_type = "manual", manual_type = "SWD")

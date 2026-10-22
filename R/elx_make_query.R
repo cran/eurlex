@@ -4,6 +4,19 @@
 #' List of available resource types: http://publications.europa.eu/resource/authority/resource-type .
 #' Note that not all resource types are compatible with default parameter values.
 #'
+#' @details
+#' When `date_from` or `date_to` are specified, the underlying SPARQL query 
+#' requires `?date` to be a well-formed `xsd:date`. Any document whose date 
+#' does not resolve to a valid `xsd:date` would be silently excluded from 
+#' the filtered results, without a warning or error.
+#' 
+#' When `include_author` is `TRUE`, the query uses `GROUP_CONCAT` to combine 
+#' multiple authors for the same document into a single pipe-separated 
+#' (`|`) string in the `author` column, rather than returning one row per 
+#' author. This avoids duplicate rows for documents with multiple authors, 
+#' but means the query switches from `SELECT DISTINCT` to `SELECT ... GROUP BY` 
+#' internally when `include_author` is used.
+#'
 #' @param resource_type Type of resource to be retrieved via SPARQL query
 #' @param manual_type Define manually the type of resource to be retrieved
 #' @param directory Restrict the results to a given directory code
@@ -11,6 +24,8 @@
 #' @param include_corrigenda If `TRUE`, results include corrigenda
 #' @param include_celex If `TRUE`, results include CELEX identifier for each resource URI
 #' @param include_date If `TRUE`, results include document date
+#' @param date_from Restrict results to documents dated on or after this date, in `YYYY-MM-DD` format
+#' @param date_to Restrict results to documents dated on or before this date, in `YYYY-MM-DD` format
 #' @param include_date_force If `TRUE`, results include date of entry into force
 #' @param include_date_endvalid If `TRUE`, results include date of end of validity
 #' @param include_date_transpos If `TRUE`, results include date of transposition deadline for directives
@@ -21,6 +36,7 @@
 #' @param include_citations If `TRUE`, results include citations (CELEX-labelled)
 #' @param include_citations_detailed If `TRUE`, results include citations (CELEX-labelled) with additional details
 #' @param include_author If `TRUE`, results include document author(s)
+#' @param include_title If `TRUE`, results include document title in English
 #' @param include_directory If `TRUE`, results include the label of the Eur-Lex directory code
 #' @param include_directory_code If `TRUE`, results include the Eur-Lex directory code
 #' @param include_sector If `TRUE`, results include the Eur-Lex sector code
@@ -40,6 +56,8 @@
 #' @export
 #' @examples
 #' elx_make_query(resource_type = "directive", include_date = TRUE, include_force = TRUE)
+#' elx_make_query(resource_type = "directive", include_title = TRUE)
+#' elx_make_query(resource_type = "directive", date_from = "2015-01-01", date_to = "2015-12-31")
 #' elx_make_query(resource_type = "regulation", include_corrigenda = TRUE, order = TRUE)
 #' elx_make_query(resource_type = "any", sector = 2)
 #' elx_make_query(resource_type = "manual", manual_type = "SWD")
@@ -47,11 +65,13 @@
 elx_make_query <- function(resource_type = c("any","directive","regulation","decision","recommendation","intagr","caselaw","manual","proposal","national_impl"),
                            manual_type = "", directory = NULL, sector = NULL,
                            include_corrigenda = FALSE, include_celex = TRUE, include_lbs = FALSE,
-                           include_date = FALSE, include_date_force = FALSE, include_date_endvalid = FALSE,
+                           include_date = FALSE, date_from = NULL, date_to = NULL,
+                           include_date_force = FALSE, include_date_endvalid = FALSE,
                            include_date_transpos = FALSE, include_date_lodged = FALSE,
                            include_force = FALSE, include_eurovoc = FALSE,
                            include_citations = FALSE, include_citations_detailed = FALSE,
                            include_author = FALSE,
+                           include_title = FALSE,
                            include_directory = FALSE, include_directory_code = FALSE,
                            include_sector = FALSE,
                            include_ecli = FALSE, include_court_procedure = FALSE,
@@ -78,160 +98,160 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
   if (include_date_transpos == TRUE & !resource_type %in% c("any","directive")){
     stop("Transposition date currently only available for directives.", call. = TRUE)
   }
+  
+  if (include_date_transpos == TRUE & !resource_type %in% c("any","directive")){
+    stop("Transposition date currently only available for directives.", call. = TRUE)
+  }
+  
+  if (!is.null(date_from) && !grepl("^\\d{4}-\\d{2}-\\d{2}$", date_from)){
+    stop("'date_from' must be in YYYY-MM-DD format.", call. = TRUE)
+  }
+  
+  if (!is.null(date_to) && !grepl("^\\d{4}-\\d{2}-\\d{2}$", date_to)){
+    stop("'date_to' must be in YYYY-MM-DD format.", call. = TRUE)
+  }
 
-  query <- "PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+  select_stmt <- if (include_author == TRUE) "select" else "select distinct"
+  
+  query <- paste0("PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
   PREFIX annot: <http://publications.europa.eu/ontology/annotation#>
   PREFIX skos:<http://www.w3.org/2004/02/skos/core#>
   PREFIX dc:<http://purl.org/dc/elements/1.1/>
   PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>
   PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
   PREFIX owl:<http://www.w3.org/2002/07/owl#>
-  select distinct ?work ?type"
+  ", select_stmt, " ?work ?type")
+  
+  group_vars <- c("?work", "?type")
+  
 
   if (include_celex == TRUE){
-
     query <- paste(query, "?celex", sep = " ")
-
+    group_vars <- c(group_vars, "?celex")
   }
-
-  if (include_date == TRUE){
-
+  
+  if (include_date == TRUE || !is.null(date_from) || !is.null(date_to)){
     query <- paste(query, "?date", sep = " ")
-
+    group_vars <- c(group_vars, "?date")
   }
-
+  
   if (include_date_force == TRUE){
-
     query <- paste(query, "?dateforce", sep = " ")
-
+    group_vars <- c(group_vars, "?dateforce")
   }
-
+  
   if (include_date_endvalid == TRUE){
-
     query <- paste(query, "?dateendvalid", sep = " ")
-
+    group_vars <- c(group_vars, "?dateendvalid")
   }
-
+  
   if (include_date_transpos == TRUE){
-
     query <- paste(query, "?datetranspos", sep = " ")
-
+    group_vars <- c(group_vars, "?datetranspos")
   }
-
+  
   if (include_date_lodged == TRUE){
-
     query <- paste(query, "?datelodged", sep = " ")
-
+    group_vars <- c(group_vars, "?datelodged")
   }
-
+  
   if (include_lbs == TRUE){
-
+    
     if (resource_type %in% c("caselaw")){
       stop("Legal basis variable incompatible with requested resource type", call. = TRUE)
     }
-
+    
     query <- paste(query, "?lbs ?lbcelex ?lbsuffix", sep = " ")
-
+    group_vars <- c(group_vars, "?lbs", "?lbcelex", "?lbsuffix")
   }
-
+  
   if (include_force == TRUE){
-
+    
     if (resource_type %in% c("caselaw")){
       stop("Force variable incompatible with requested resource type", call. = TRUE)
     }
-
+    
     query <- paste(query, "?force", sep = " ")
-
+    group_vars <- c(group_vars, "?force")
   }
-
+  
   if (include_eurovoc == TRUE){
-
     query <- paste(query, "?eurovoc", sep = " ")
-
+    group_vars <- c(group_vars, "?eurovoc")
   }
-
+  
   if (include_court_procedure == TRUE){
-
     query <- paste(query, "?courtprocedure", sep = " ")
-
+    group_vars <- c(group_vars, "?courtprocedure")
   }
-
+  
   if (include_ecli == TRUE){
-
     query <- paste(query, "?ecli", sep = " ")
-
+    group_vars <- c(group_vars, "?ecli")
   }
-
+  
   if (include_author == TRUE){
-
-    query <- paste(query, "?author", sep = " ")
-
+    query <- paste(query, '(group_concat(distinct ?author;separator="|") as ?author)', sep = " ")
+  }
+  
+  if (include_title == TRUE){
+    query <- paste(query, "?title", sep = " ")
+    group_vars <- c(group_vars, "?title")
   }
   
   if (include_citations == TRUE){
-    
     query <- paste(query, "?citationcelex", sep = " ")
-    
+    group_vars <- c(group_vars, "?citationcelex")
   }
-
+  
   if (include_citations_detailed == TRUE){
-
     query <- paste(query, "?citationcelex ?citationdetailcit ?citationdetail", sep = " ")
-
+    group_vars <- c(group_vars, "?citationcelex", "?citationdetailcit", "?citationdetail")
   }
-
+  
   if (include_directory == TRUE | include_directory_code == TRUE){
-
     query <- paste(query, "?directory", sep = " ")
-
+    group_vars <- c(group_vars, "?directory")
   }
-
+  
   if (include_sector == TRUE){
-
     query <- paste(query, "?sector", sep = " ")
-
+    group_vars <- c(group_vars, "?sector")
   }
   
   if (include_advocate_general == TRUE){
-    
     query <- paste(query, "?ag", sep = " ")
-    
+    group_vars <- c(group_vars, "?ag")
   }
   
   if (include_judge_rapporteur == TRUE){
-    
     query <- paste(query, "?jr", sep = " ")
-    
+    group_vars <- c(group_vars, "?jr")
   }
   
   if (include_court_formation == TRUE){
-    
     query <- paste(query, "?cf", sep = " ")
-    
+    group_vars <- c(group_vars, "?cf")
   }
   
   if (include_court_scholarship == TRUE){
-    
     query <- paste(query, "?scholarship", sep = " ")
-    
+    group_vars <- c(group_vars, "?scholarship")
   }
   
   if (include_court_origin == TRUE){
-    
     query <- paste(query, "?courtorigin", sep = " ")
-    
+    group_vars <- c(group_vars, "?courtorigin")
   }
   
   if (include_original_language == TRUE){
-    
     query <- paste(query, "?origlang", sep = " ")
-    
+    group_vars <- c(group_vars, "?origlang")
   }
   
   if (include_proposal == TRUE){
-    
     query <- paste(query, "?proposal", sep = " ")
-    
+    group_vars <- c(group_vars, "?proposal")
   }
 
   if (resource_type == "any"){
@@ -402,10 +422,19 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
 
   }
 
-  if (include_date == TRUE){
-
+  if (!is.null(date_from) || !is.null(date_to)){
+    query <- paste(query, "?work cdm:work_date_document ?date.")
+    
+    if (!is.null(date_from)){
+      query <- paste(query, paste0('FILTER(?date >= "', date_from, '"^^xsd:date)'))
+    }
+    
+    if (!is.null(date_to)){
+      query <- paste(query, paste0('FILTER(?date <= "', date_to, '"^^xsd:date)'))
+    }
+    
+  } else if (include_date == TRUE){
     query <- paste(query, "OPTIONAL{?work cdm:work_date_document ?date.}")
-
   }
 
   if (include_date_force == TRUE){
@@ -462,6 +491,12 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
     query <- paste(query, "OPTIONAL{?work cdm:work_created_by_agent ?authorx.
                    ?authorx skos:prefLabel ?author. FILTER(lang(?author)='en')}.")
 
+  }
+  
+  if (include_title == TRUE){
+    query <- paste(query, "OPTIONAL{?exp cdm:expression_belongs_to_work ?work.
+                 ?exp cdm:expression_title ?title.
+                 ?exp cdm:expression_uses_language <http://publications.europa.eu/resource/authority/language/ENG>}.")
   }
   
   if (include_citations == TRUE){
@@ -572,10 +607,23 @@ elx_make_query <- function(resource_type = c("any","directive","regulation","dec
     'FILTER not exists{?work cdm:do_not_index "true"^^<http://www.w3.org/2001/XMLSchema#boolean>}.'
   )
   
+  # close where clause
+  query <- paste(query, "}")
+  
+  # group by (only needed when an aggregate function like group_concat is used)
+  if (include_author == TRUE){
+    query <- paste(query, "GROUP BY", paste(group_vars, collapse = " "))
+  }
+  
+  # order
   # order
   if (order == TRUE){
-    query <- paste(query, "} order by str(?date)")
-  } else {query <- paste(query, "}")} 
+    if (include_author == TRUE){
+      query <- paste(query, "order by str(?work)")
+    } else {
+      query <- paste(query, "order by str(?date)")
+    }
+  }
 
   # limit
   if (!is.null(limit) & is.integer(as.integer(limit))){
